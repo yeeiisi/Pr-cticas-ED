@@ -22,19 +22,17 @@ Video::Video(int n): seq(n){
 }
 /**************************************************/
 Video::Video(const Video &V){
-  this = V;
-
+  seq = V.seq;
 }
 /**************************************************/
 Video::~Video(){
-  Destroy();
 }
 /**************************************************/
 Video &Video::operator=(const Video &V){
 seq.resize(V.seq.size());
 
-for(int i = 0; i < tam; i++){
-  seq[i] = v[i]
+for(int i = 0; i < V.size(); i++){
+  seq[i] = V[i];
 }
 
 }
@@ -44,33 +42,43 @@ int Video::size() const{
 }
 /**************************************************/
 Image &Video::operator[](int foto){
-    return this[foto];
+    return seq[foto];
 }
 
 const Image &Video::operator[](int foto)const{
-    return this[foto];
+    return seq[foto];
 }
 
 void Video::Insertar(int k, const Image &I){
-    this[k] = I;
+    seq[k] = I;
 
 }
 
 void Video::Borrar(int k){
-    seq.erase(k);
+    for(int i = k; i < this->size()-1; i++){
+        seq[i] = seq[i+1];
+    }
+
+    seq.resize(seq.size() - 1);
+
 }
 
 bool Video::LeerVideo(const string &path){
 
     //USA read_directory PARA LEER los fichero de un directorio
     bool success = false;
+    vector <string> nombres;
     
-    read_directory(path,seq);
+    read_directory(path,nombres);
     
-    if(seq.empty()){
+    if(nombres.empty()){
       success = false;
     }
-  
+    
+    for(int i = 0; i < nombres.size(); i++){
+        cout << nombres[i] << '\n';
+    }
+
     return success;
 }
 
@@ -92,9 +100,9 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
         }
     }
     
-    for(int i = 0; i < seq.size(); i++){
-      seq[i].Save
-
+    /* for(int i = 0; i < seq.size(); i++){
+      seq[i].Save();
+    } */
     //COMPLETAR POR EL ESTUDIANTE
 
 }
