@@ -33,7 +33,7 @@ Video::~Video(){}
 /**************************************************/
 Video &Video::operator=(const Video &V){
 //COMPLETAR POR EL ESTUDIANTE
-    if(this != V){
+    if(this != &V){
         seq = V.seq;
     }
     return *this;
@@ -57,14 +57,14 @@ const Image &Video::operator[](int foto)const{
 
 void Video::Insertar(int k, const Image &I){
     //COMPLETAR POR EL ESTUDIANTE
-    if(k>=0 && k<=seq.size()){
+    if(k>=0 && k<=int(seq.size())){
         seq[k] = I;
     }
 }
 
-void Video::Borrar(int k){
+void Video::Borrar(int k){  
     //COMPLETAR POR EL ESTUDIANTE
-    for(int i = 0; i < this.size() - 1; i++){
+    for(int i = k; i < int(seq.size() - 1); i++){
         seq[i] = seq[i + 1];
     }
 
@@ -73,25 +73,31 @@ void Video::Borrar(int k){
 }
 
 bool Video::LeerVideo(const string &path){
-
+    bool valid = true;
     //USA read_directory PARA LEER los fichero de un directorio
     //COMPLETAR POR EL ESTUDIANTE
     vector<string> files;
     read_directory(path,files);
+    vector<string> aux;
 
-    for(int i = 0; i < files.size(); i++){
-        Image I;
+    seq.resize(files.size());
 
-        if(i.LoadFromPGM(path + "/" + files[i])){
-            seq.push_back(i);
-        }
-        else{
-            cout << "error al leer la imagen " << files[i] << endl;
-            return false;
-        }
+    if(files.empty()){
+        cout << "No hay archivos en el directorio\n";
+        valid = false;
     }
 
-    return true;
+    for(int i = 0; i < int(files.size()); i++){
+        if(files[i] == "." || files[i] == ".."){
+            continue;
+        }
+        aux.push_back(path + "/" + files[i]);
+        seq[i].Load(aux[i].c_str());
+        cout << files[i] << "\n";
+    }
+
+    return valid;
+
 
 }
 
@@ -114,5 +120,14 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
     }
 
     //COMPLETAR POR EL ESTUDIANTE
+    vector<string> aux;
+    for (int i = 0; i < int(seq.size()); i++) {
+        aux.push_back(path + "/" + prefijo + to_string(i) + ".pgm");
+        if (!seq[i].Save(aux[i].c_str())) {
+            cout << "Error al escribir la imagen " << aux[i].c_str() << endl;
+            exito = false;
+        }
+    }
 
+    return exito;
 }
