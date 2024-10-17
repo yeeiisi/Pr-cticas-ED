@@ -1,5 +1,6 @@
 
 #include "video.h"
+#include <algorithm>
 //COMPLETAR POR EL ESTUDIANTE
 
 void read_directory(const std::string& name, vector<string>& v)
@@ -57,10 +58,8 @@ const Image &Video::operator[](int foto)const{
 
 void Video::Insertar(int k, const Image &I){
     //COMPLETAR POR EL ESTUDIANTE
-    if(k>=0 && k<int(seq.size())){
-        vector<Image>::iterator it;
-        it = seq.begin() + k;
-        seq.insert(it, I);
+    if(k>=0 && k<seq.size()){
+        seq[k] = I;
     }
 }
 
@@ -80,7 +79,8 @@ bool Video::LeerVideo(const string &path){
     //COMPLETAR POR EL ESTUDIANTE
     vector<string> files;
     read_directory(path,files);
-    vector<string> aux;
+
+    seq.clear();
 
     seq.resize(files.size());
 
@@ -89,20 +89,22 @@ bool Video::LeerVideo(const string &path){
         valid = false;
     }
 
-    for(int i = 0; i < int(files.size()); i++){
+    vector<string>::iterator inicio = files.begin();
+    vector<string>::iterator final = files.end();
 
-        if(files[i] == "." || files[i] == ".."){
-            continue;
+
+    std::sort(files.begin(),files.end());
+
+    for(int i = 0; i < files.size(); i++){
+
+        if(files[i] != "." && files[i] != ".."){
+            string direccion = path + '/' + files[i];
+            Image imagen(direccion.c_str());
+            this->Insertar(i,imagen);
         }
-        aux.push_back(path + "/" + files[i]);
-        Image imagen(aux[i].c_str());
-        this->Insertar(i,imagen);
-        cout << files[i] << "\n";
     }
 
     return valid;
-
-
 }
 
 bool Video::EscribirVideo(const string & path, const string &prefijo)const{
@@ -119,16 +121,16 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
             return false;
         }
         else{
-            cout<<" Se ha creado el directorio "<< path<<endl;
+            cout<<" Se ha creado el directorio "<< path << endl;
         }
     }
 
     //COMPLETAR POR EL ESTUDIANTE
-    vector<string> aux;
-    for (int i = 0; i < int(seq.size()); i++) {
-        aux.push_back(path + "/" + prefijo + to_string(i) + ".pgm");
-        if (!seq[i].Save(aux[i].c_str())) {
-            cout << "Error al escribir la imagen " << aux[i].c_str() << endl;
+    string aux;
+    for (int i = 0; i < seq.size(); i++) {
+        aux = path + "/" + prefijo + to_string(0) + to_string(i) + ".pgm";
+        if (!seq[i].Save(aux.c_str())) {
+            cout << "Error al escribir la imagen " << aux.c_str() << endl;
             exito = false;
         }
     }

@@ -9,7 +9,7 @@ Video Rebobinar(const Video &V){
     for(int i = 0; i < V.size(); i++){
         V2[i] = V[V.size() - 1 - i];
     }
-    
+
     return V2;
 }
 
