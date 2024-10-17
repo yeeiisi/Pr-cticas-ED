@@ -4,14 +4,22 @@
 using namespace std;
 Video Rebobinar(const Video &V){
 //RELLENAR POR EL ESTUDIANTE
+    Video V2(V.size());
 
+    for(int i = 0; i < V.size(); i++){
+        V2[i] = V[V.size() - 1 - i];
+    }
+    
+    return V2;
 }
 
 int main(int argc, char * argv[]){
 //RELLENAR POR EL ESTUDIANTE
-char* path_orig = argv[1];
-char* path_reb = argv[2];
+    Video orig;
 
-Video orig;
-orig.LeerVideo(path_orig);
+    orig.LeerVideo(argv[1]);
+
+    Video rebo(Rebobinar(orig));
+
+    rebo.EscribirVideo(argv[2], "rebobinado");
 }
