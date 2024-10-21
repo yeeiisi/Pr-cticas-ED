@@ -81,17 +81,12 @@ bool Video::LeerVideo(const string &path){
     read_directory(path,files);
 
     seq.clear();
-
     seq.resize(files.size());
 
     if(files.empty()){
         cout << "No hay archivos en el directorio\n";
         valid = false;
     }
-
-    vector<string>::iterator inicio = files.begin();
-    vector<string>::iterator final = files.end();
-
 
     std::sort(files.begin(),files.end());
 
@@ -126,7 +121,7 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
     }
 
     //COMPLETAR POR EL ESTUDIANTE
-    string aux;
+    string aux;    
     for (int i = 0; i < seq.size(); i++) {
         aux = path + "/" + prefijo + to_string(0) + to_string(i) + ".pgm";
         if (!seq[i].Save(aux.c_str())) {

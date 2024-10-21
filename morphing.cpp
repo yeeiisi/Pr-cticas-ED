@@ -3,6 +3,11 @@
 #include <iostream>
 #include <cassert>
 using namespace std;
+
+/*Hace morphing a partir de 2 imágenes y el número de frames.
+La secuencia es asignada una imagen para cada fotograma a partir
+de la fórmula: I = I1*(1-(i/nframes)) + I2*i/nframes.
+*/
 Video Morphing(const Image &I1,const Image &I2,int nframes){
  //RELLENAR POR EL ESTUDIANTE
 

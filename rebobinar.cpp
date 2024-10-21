@@ -2,8 +2,11 @@
 #include "video.h"
 #include <iostream>
 using namespace std;
+
+//Rebobina un vídeo copiando su contenido en orden inverso
 Video Rebobinar(const Video &V){
 //RELLENAR POR EL ESTUDIANTE
+
     Video V2(V.size());
 
     for(int i = 0; i < V.size(); i++){
