@@ -91,9 +91,9 @@ bool Video::LeerVideo(const string &path){
         if(files[i] == "." || files[i] == ".."){
             continue;
         }
-        aux.push_back(path + "/" + files[i]);
-        seq[i].Load(aux[i].c_str());
-        cout << files[i] << "\n";
+        tring direccion = path + '/' + files[i];
+        Image imagen(direccion.c_str());
+        this->Insertar(i,imagen);
     }
 
     return valid;
@@ -123,8 +123,8 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
     vector<string> aux;
     for (int i = 0; i < int(seq.size()); i++) {
         aux.push_back(path + "/" + prefijo + to_string(i) + ".pgm");
-        if (!seq[i].Save(aux[i].c_str())) {
-            cout << "Error al escribir la imagen " << aux[i].c_str() << endl;
+        if (!seq[i].Save(aux.c_str())) {
+            cout << "Error al escribir la imagen " << aux.c_str() << endl;
             exito = false;
         }
     }
