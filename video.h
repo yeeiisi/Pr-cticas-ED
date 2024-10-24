@@ -92,9 +92,11 @@ public:
      /**
       @brief Copia la secuencia de un vídeo en otro ya generado.
       
-      @param V Vídeo a copiar.
+      @param V referencia al video que deseamos copiar.
     
       @return Video, referencia al objeto copia generado.
+
+      @post El objeto contendrá la misma secuencia que el original.
     **/
     Video &operator=(const Video &V);
 
