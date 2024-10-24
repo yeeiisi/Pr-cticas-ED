@@ -1,6 +1,10 @@
+/**
+ * @file video.cpp
+ * @brief Fichero con definiciones para los métodos primitivos de la clase Video
+ *
+ */
 
 #include "video.h"
-#include <algorithm>
 //COMPLETAR POR EL ESTUDIANTE
 
 void read_directory(const std::string& name, vector<string>& v)
@@ -81,13 +85,13 @@ bool Video::LeerVideo(const string &path){
     read_directory(path,files);
 
     seq.clear();
-    seq.resize(files.size());
+    seq.resize(files.size() - 2);   //eliminamos . y ..
 
     if(files.empty()){
         cout << "No hay archivos en el directorio\n";
         valid = false;
     }
-
+    
     std::sort(files.begin(),files.end());
 
     for(int i = 0; i < files.size(); i++){
@@ -95,7 +99,7 @@ bool Video::LeerVideo(const string &path){
         if(files[i] != "." && files[i] != ".."){
             string direccion = path + '/' + files[i];
             Image imagen(direccion.c_str());
-            this->Insertar(i,imagen);
+            this->Insertar(i-2,imagen);
         }
     }
 

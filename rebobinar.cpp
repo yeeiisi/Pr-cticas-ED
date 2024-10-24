@@ -1,3 +1,11 @@
+/**
+ * @file rebobinar.cpp
+ * @brief Fichero con la resolución de rebobinar un vídeo usando los métodos
+ * de la clase Video
+ *
+ */
+
+
 #include "image.h"
 #include "video.h"
 #include <iostream>

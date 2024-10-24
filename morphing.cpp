@@ -1,3 +1,11 @@
+/**
+ * @file morphing.cpp
+ * @brief Fichero con la resolución de hacer morphing de dos imágenes usando
+ * la clase Video
+ *
+ */
+
+
 #include "image.h"
 #include "video.h"
 #include <iostream>
@@ -33,7 +41,7 @@ int main(int argc, char * argv[]){
     string path1 = argv[1];
     string path2 = argv[2];
     string dir_vid = argv[3];
-    int nframes = *argv[4];
+    int nframes = stoi(argv[4]);
 
     Image imagen1(path1.c_str());
     Image imagen2(path2.c_str());
