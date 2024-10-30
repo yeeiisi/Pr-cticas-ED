@@ -125,13 +125,29 @@ bool Video::EscribirVideo(const string & path, const string &prefijo)const{
     }
 
     //COMPLETAR POR EL ESTUDIANTE
-    string aux;    
-    for (int i = 0; i < seq.size(); i++) {
-        aux = path + "/" + prefijo + to_string(0) + to_string(i) + ".pgm";
+    string aux;
+    const int NUM_CEROS = log10(seq.size());
+
+    for (int i = 0; i < seq.size(); i++){
+        aux = path + "/" + prefijo;
+        if(i==0){ //porque log10(0) = inf
+            for(int k = 0; k < NUM_CEROS; k++){  
+                aux.push_back('0');
+            }
+        }    
+        else{
+            for(int j = 0; j < (NUM_CEROS - log10(i)); j++){
+                aux.push_back('0');
+            }
+        }
+
+        aux += to_string(i) + ".pgm";
+
         if (!seq[i].Save(aux.c_str())) {
             cout << "Error al escribir la imagen " << aux.c_str() << endl;
             exito = false;
         }
     }
+
     return exito;
 }
