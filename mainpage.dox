@@ -1,0 +1,36 @@
+*! \mainpage Título de la página principal
+
+# Introducción
+
+Realización de TDA Vídeo y los programas rebobinar y morphing a partir de la clase Video.
+
+La clase rebobinar toma un directorio con una secuencia de imágenes y las invierte para dar lugar
+a la secuencia de video invertido.
+
+La clase morphing toma dos imágenes y un número de transiciones para realizar la transición de 
+la primera a la segunda imagen decrementando el valor de los pixeles de la primera imagen 
+para así concluir en la segunda imagen.
+
+# Ejecutables
+
+@video html rebobinar
+## Rebobinar:
+
+Rebobina un video:
+
+> __rebobinar__ \<RutaVIdeoOriginal\> \<RutaVideoDestino\>
+@param "<RutaVIdeoOriginal>" Directorio con el video original
+@param "<RutaVIdeoDestino>" Directorio donde se guardará el video rebobinado
+
+
+@video html morphing
+## Morphing:
+
+Realiza morphing sobre una imagen y la convierte a otra en un número de frames especificados
+
+> __morphing__ \<RutaImagen1\> \<RutaImagen2\> \<nframes\>
+@param "<RutaImagen1>" Directorio con la imagen 1
+@param "<RutaImagen2>" Directorio con la imagen 2
+@param "<nframes>" Número de frames deseado para realizar el morphing
+
+*/
