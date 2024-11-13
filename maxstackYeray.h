@@ -18,8 +18,7 @@ int maximum; // Current max value in the structure
 
 class MaxStack{
 private:
-stack<element> pila;
-std::priority_queue<int> cola;
+std::priority_queue<pair<element,int>> cola;
 public:
 
 MaxStack();
