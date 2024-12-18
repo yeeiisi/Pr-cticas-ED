@@ -1,4 +1,4 @@
-#include "../include/quienesquien.h"
+#include "quienesquien.h"
 #include <sstream>
 #include <iostream>
 #include <iterator>
@@ -237,24 +237,42 @@ bintree<Pregunta> QuienEsQuien::crear_arbol( vector<string> atributos,
 
      //TODO :D:D
      bintree<Pregunta> arbol;
-     
-     for(int i = 0; i < this->atributos.size(); i++){
-          int num_personajes = 0;
-          int num_no = 0;
-          string atributo = atributos[i];
-          string personaje;
-          for(int j = 0; j < this->personajes.size(); j++){
-               if(tablero[i][j] == 1)
-                    num_personajes++;
+     string atributo = atributos[indice_atributo];
+
+     vector<string> personajes_si;
+     vector<bool> restantes_si;
+     vector<string> personajes_no;
+     vector<bool> restantes_no;
+     vector<vector<bool>> tablero_si;
+     vector<vector<bool>> tablero_no;
+
+     if(personajes_restantes.size() == 1){
+          atributo = personajes[0];
+          Pregunta pregunta(atributo,1);
+          if(tablero[0][indice_atributo] == 0)
+              arbol.insert_right(pregunta); 
+          else
+               arbol.insert_left(pregunta);
+     }
+     else{
+          for(int i = 0; i < personajes_restantes.size(); i++){
+               if(tablero[i][indice_atributo] == 0){
+                    personajes_no.insert(personajes[i]);
+                    restantes_no.insert(1);
+                    tablero_no[i] = tablero[i];
+               }
+               else{
+                    personajes_si.insert(personajes[i]);
+                    restantes_si.insert(1);
+                    tablero_si[i] = tablero[i];
+               }
           }
 
-          if(num_personajes == 1)
-          Pregunta preguntaSi(atributo,num_personajes);
-          num_no = personajes.size()-1-num_personajes;
-          Pregunta preguntaNo(atributo,num_no);
+          bintree<Pregunta> arbol_si = crear_arbol(atributos,indice_atributo+1,personajes_si,restantes_si,tablero_si);
+          bintree<Pregunta> arbol_no = crear_arbol(atributos,indice_atributo+1,personajes_no,restantes_no,tablero_no);
 
-          arbol.insert_left(preguntaSi);
-          arbol.insert_right(preguntaNo);
+          arbol.insert_right(arbol_si);
+          arbol.insert_left(arbol_no);
      }
 
      return arbol;
@@ -384,12 +402,29 @@ void QuienEsQuien::eliminar_nodos_redundantes(){
 
 float QuienEsQuien::profundidad_promedio_hojas(){
 //TODO :)
-     int profundidad;
+     int suma_profundidad;
      int num_hojas = personajes.size();
-     int i = 0;
-     bintree<Pregunta>::node nodo;
-     while(i < num_hojas){
-          
+     float promedio = 0;
+
+     if(num_hojas == 0)
+          return promedio;
+     
+     bintree<Pregunta>::node nodo = this->arbol.root();
+     
+     calculo_profundidad(nodo,0,suma_profundidad);
+
+     promedio = suma_profundidad/num_hojas;
+     
+     return promedio;
+}
+
+void QuienEsQuien::calculo_profundidad(bintree<Pregunta>::node nodo, int profundidad, int& suma){
+     if(nodo.right().null() && nodo.left().null()){
+          suma += profundidad;
+     }
+     else if (!nodo.null()){
+          calculo_profundidad(nodo.left(), profundidad+1, suma);
+          calculo_profundidad(nodo.right(),profundidad+1, suma);
      }
 }
 
