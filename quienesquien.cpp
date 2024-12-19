@@ -1,4 +1,4 @@
-#include "quienesquien.h"
+#include "../include/bintree.h"
 #include <sstream>
 #include <iostream>
 #include <iterator>
@@ -271,8 +271,8 @@ bintree<Pregunta> QuienEsQuien::crear_arbol( vector<string> atributos,
           bintree<Pregunta> arbol_si = crear_arbol(atributos,indice_atributo+1,personajes_si,restantes_si,tablero_si);
           bintree<Pregunta> arbol_no = crear_arbol(atributos,indice_atributo+1,personajes_no,restantes_no,tablero_no);
 
-          arbol.insert_right(arbol_si);
-          arbol.insert_left(arbol_no);
+          arbol.insert_right(arbol_no);
+          arbol.insert_left(arbol_si);
      }
 
      return arbol;
@@ -361,7 +361,7 @@ set<string> QuienEsQuien::informacion_jugada(bintree<Pregunta>::node jugada_actu
      int indice = 1;
      bool coinciden = false;
      while(indice <= atributos.size() && !coinciden){
-          if(atributo != atributos[i])
+          if(atributo == atributos[i])
                coinciden = true;
           else
                indice++;
@@ -397,7 +397,26 @@ void QuienEsQuien::escribir_arbol_completo() const{
 }
 
 void QuienEsQuien::eliminar_nodos_redundantes(){
-// TODO :)
+     bintree<Pregunta>::node nodo = arbol.root();
+     elimina_nodos_recursivos(nodo);
+}
+
+//Función auxiliar que permite eliminar los nodos con un solo hijo de manera recursiva.
+//Va recorriendo nodos hasta que se encuentre con un nodo nulo. (es decir, se ha llamado desde una hoja)
+void elimina_nodos_recursivo(bintree<Pregunta>::node nodo){
+     if(!nodo.null()){
+          bintree<Pregunta> aux;
+          if(!nodo.right.null() && nodo.left.null()){
+               arbol.prune_right(nodo,aux);
+               arbol.replace_subtree(nodo,aux,aux.root());
+          }
+          else if(nodo.right.null() && !nodo.left.null()){
+                    arbol.prune_left(nodo,aux);
+                    arbol.replace:subtree(nodo,aux,aux.root());
+          }
+          eliminar_nodos_redundantes(nodo.right());
+          eliminar_nodos_redundantes(nodo.left());
+     }
 }
 
 float QuienEsQuien::profundidad_promedio_hojas(){
@@ -418,13 +437,17 @@ float QuienEsQuien::profundidad_promedio_hojas(){
      return promedio;
 }
 
-void QuienEsQuien::calculo_profundidad(bintree<Pregunta>::node nodo, int profundidad, int& suma){
-     if(nodo.right().null() && nodo.left().null()){
-          suma += profundidad;
-     }
-     else if (!nodo.null()){
-          calculo_profundidad(nodo.left(), profundidad+1, suma);
-          calculo_profundidad(nodo.right(),profundidad+1, suma);
+//Función auxiliar recursiva que permite calcular la profundidad de las distintas ramas del árbol.
+//Si el nodo no es nulo, se llama a sí misma con sus dos hijos. Si llega a una hoja, suma la profundidad.
+void calculo_profundidad(bintree<Pregunta>::node nodo, int profundidad, int& suma){
+     if (!nodo.null()){
+          if(nodo.right().null() && nodo.left().null()){
+               suma += profundidad;
+          }
+          else{
+               calculo_profundidad(nodo.left(), profundidad+1, suma);
+               calculo_profundidad(nodo.right(),profundidad+1, suma);
+          }
      }
 }
 
