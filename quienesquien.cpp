@@ -1,4 +1,4 @@
-#include "../include/bintree.h"
+#include "../include/quienesquien.h"
 #include <sstream>
 #include <iostream>
 #include <iterator>
@@ -278,8 +278,47 @@ bintree<Pregunta> QuienEsQuien::crear_arbol( vector<string> atributos,
      return arbol;
 }
 
+int selecion_mejor_atrib(vector<string> atributos, vector<bool> personajes_restantes, vector<vector<bool>> tablero){
+     int mejor_atributo = -1;
+     double mejor_entropia = 0;
+
+     for(int i = 0; i < atributos.size(); i++){
+          double entropia = calcular_entropia(i,tablero,personajes_restantes);
+          if(entropia > mejor_entropia){
+               mejor_entropia = entropia;
+               mejor_atributo = i;
+          }
+          
+     }
+
+     return mejor_atributo;
+}
+
+double calcular_entropia(int indice_atributo, vector<vector<bool>> tablero, vector<bool> personajes_restantes){
+     double si = 0, no = 0, total = personajes_restantes.size();
+     double probabilidad_si = 0, probabilidad_no = 0;
+     double H = 0;
+     
+     for(int i = 0; i < personajes.size(); i++){
+     	if(tablero[i][indice_atributo] == 0){ // no
+     		no++;
+		}
+		else{ // si
+			si++;
+		}
+	 }
+	 
+	 probabilidad_no = no/total;
+	 probabilidad_si = si/total;
+	 
+      // Entropía
+	 H -= (probabilidad_no*(log(probabilidad_no)/log(2)) + probabilidad_si*(log(probabilidad_si)/log(2)));
+	 
+      return H;
+}
+
 /**
-* @brief Igual que el m�todo crear_arbol, pero elige las preguntas maximizando la entrop�a.
+* @brief Igual que el método crear_arbol, pero elige las preguntas maximizando la entropía.
 */
 bintree<Pregunta> QuienEsQuien::crear_arbol_mejorado( vector<string> atributos,
                                              int indice_atributo,
@@ -289,6 +328,40 @@ bintree<Pregunta> QuienEsQuien::crear_arbol_mejorado( vector<string> atributos,
 
      //TODO :D:D
      bintree<Pregunta> arbol;
+
+     int mejor_atributo = selecion_mejor_atrib;;
+
+     vector<string> personajes_si;
+     vector<bool> restantes_si;
+     vector<string> personajes_no;
+     vector<bool> restantes_no;
+     vector<vector<bool>> tablero_si;
+     vector<vector<bool>> tablero_no;     
+
+     if (personajes_restantes.size() == 1) { // Sólo queda un personaje
+        arbol.insert(personajes_restantes[0]);
+        return arbol;
+     }else{
+          for(int i = 0; i < personajes_restantes.size(); i++){
+               if(tablero[i][mejor_atributo] == 0){
+                    personajes_no.insert(personajes[i]);
+                    restantes_no.insert(1);
+                    tablero_no[i] = tablero[i];
+               }
+               else{
+                    personajes_si.insert(personajes[i]);
+                    restantes_si.insert(1);
+                    tablero_si[i] = tablero[i];
+               }
+          }
+     }
+
+     bintree<Pregunta> arbol_si = crear_arbol(atributos,indice_atributo+1,personajes_si,restantes_si,tablero_si);
+     bintree<Pregunta> arbol_no = crear_arbol(atributos,indice_atributo+1,personajes_no,restantes_no,tablero_no);
+
+     arbol.insert_right(arbol_si);
+     arbol.insert_left(arbol_no);
+
      return arbol;
 }
 
@@ -403,118 +476,4 @@ void QuienEsQuien::eliminar_nodos_redundantes(){
 
 //Función auxiliar que permite eliminar los nodos con un solo hijo de manera recursiva.
 //Va recorriendo nodos hasta que se encuentre con un nodo nulo. (es decir, se ha llamado desde una hoja)
-void elimina_nodos_recursivo(bintree<Pregunta>::node nodo){
-     if(!nodo.null()){
-          bintree<Pregunta> aux;
-          if(!nodo.right.null() && nodo.left.null()){
-               arbol.prune_right(nodo,aux);
-               arbol.replace_subtree(nodo,aux,aux.root());
-          }
-          else if(nodo.right.null() && !nodo.left.null()){
-                    arbol.prune_left(nodo,aux);
-                    arbol.replace:subtree(nodo,aux,aux.root());
-          }
-          eliminar_nodos_redundantes(nodo.right());
-          eliminar_nodos_redundantes(nodo.left());
-     }
-}
-
-float QuienEsQuien::profundidad_promedio_hojas(){
-//TODO :)
-     int suma_profundidad;
-     int num_hojas = personajes.size();
-     float promedio = 0;
-
-     if(num_hojas == 0)
-          return promedio;
-     
-     bintree<Pregunta>::node nodo = this->arbol.root();
-     
-     calculo_profundidad(nodo,0,suma_profundidad);
-
-     promedio = suma_profundidad/num_hojas;
-     
-     return promedio;
-}
-
-//Función auxiliar recursiva que permite calcular la profundidad de las distintas ramas del árbol.
-//Si el nodo no es nulo, se llama a sí misma con sus dos hijos. Si llega a una hoja, suma la profundidad.
-void calculo_profundidad(bintree<Pregunta>::node nodo, int profundidad, int& suma){
-     if (!nodo.null()){
-          if(nodo.right().null() && nodo.left().null()){
-               suma += profundidad;
-          }
-          else{
-               calculo_profundidad(nodo.left(), profundidad+1, suma);
-               calculo_profundidad(nodo.right(),profundidad+1, suma);
-          }
-     }
-}
-
-/**
-* @brief Genera numero enteros positivos aleatorios en el rango [min,max].
-**/
-int generaEntero(int min, int max){
-     int tam= max-min;
-     return ((rand( )%tam)+min) ;
-}
-
-void QuienEsQuien::tablero_aleatorio(int numero_de_personajes){
-     srand(0);
-     this->limpiar();
-     float log_2_numero_de_personajes = log(numero_de_personajes)/log(2);
-     int numero_de_atributos = ceil(log_2_numero_de_personajes);
-
-     cout <<  "Peticion para generar " <<  numero_de_personajes << " personajes ";
-     cout <<  "con " << numero_de_atributos <<  " atributos" << endl;
-     cout <<  "Paso 1: generar " <<  pow(2, numero_de_atributos) <<  " personajes" << endl;
-
-     //Fase 1: completar el tablero con todos los personajes posibles
-     //Complete el tablero y los nombres de personajes a la vez
-     for(int indice_personaje=0;indice_personaje< pow(2,numero_de_atributos);indice_personaje++){
-          vector<bool> atributos_personaje =
-                                    convertir_a_vector_bool(indice_personaje,numero_de_atributos);
-          string nombre_personaje = "Personaje_"+to_string(indice_personaje);
-
-          this->personajes.push_back(nombre_personaje);
-          this->tablero.push_back(atributos_personaje);
-     }
-
-     // Completo los nombres de los atributos.
-     for( int indice_atributo=0;indice_atributo<numero_de_atributos;indice_atributo++){
-          string nombre_atributo = "Atributo_"+to_string(indice_atributo);
-          this->atributos.push_back(nombre_atributo);
-     }
-     cout <<  "Paso 2: eliminar " << (pow(2,numero_de_atributos)-numero_de_personajes) <<  "personajes" << endl;
-
-     //Fase 2. Borrar personajes aleatoriamente hasta que quedan solo los que hemos pedido.
-     while(personajes.size()>numero_de_personajes){
-          int personaje_a_eliminar = generaEntero(0,personajes.size());
-          personajes.erase(personajes.begin()+personaje_a_eliminar);
-          tablero.erase(tablero.begin()+personaje_a_eliminar);
-     }
-}
-void QuienEsQuien::ocultar_personajes_graph(const set<string> &personajes_activos){
-    //ocultamos los personajes
-    int idx=0;
-    int ncols=tg->getNcols();
-    for (auto it=personajes.begin();it!=personajes.end();++it,idx++){
-        if ( personajes_activos.find(*it)==personajes_activos.end())
-            tg->putImagen(idx/ncols,idx%ncols,imagen_ocultar.c_str());
-    }
-}
-
-
-void QuienEsQuien::setImagenOcultar(const char * n){
-    imagen_ocultar=n;
-}
-
-void QuienEsQuien::setModoGraph(bool m){
-    modo_graph=m;
-}
-
-void QuienEsQuien::setArbolMejorado(bool m){
-    arbol_mejorado=m;
-}
-
-
+void elimina_nod
