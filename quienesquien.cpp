@@ -331,7 +331,6 @@ bintree<Pregunta> QuienEsQuien::crear_arbol_mejorado( vector<string> atributos,
      bintree<Pregunta> arbol;
 
      int mejor_atributo = selecion_mejor_atrib(atributos,personajes_restantes,tablero);
-
      vector<string> personajes_si;
      vector<bool> restantes_si;
      vector<string> personajes_no;
