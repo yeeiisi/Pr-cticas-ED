@@ -247,15 +247,27 @@ bintree<Pregunta> QuienEsQuien::crear_arbol( vector<string> atributos,
      vector<vector<bool>> tablero_no;
      bintree<Pregunta>::node nodo = arbol.root();
 
-     if(personajes_restantes.size() == 1){
-          atributo = personajes[0];
+     int cumplen = 0;
+     int indice;
+
+     for(int i = 0; i < personajes_restantes.size(); i++){
+          if(personajes_restantes.at(i) == 1){
+               cumplen++;
+               indice = i;
+          }
+     }
+
+     if (cumplen == 1) { // Sólo queda un personaje
+          string atributo = personajes.at(indice);
           Pregunta pregunta(atributo,1);
-          if(tablero[0][indice_atributo] == 0)
+          if(tablero[indice][indice_atributo] == 0)
               arbol.insert_right(arbol.root(),pregunta); 
           else
                arbol.insert_left(arbol.root(),pregunta);
      }
-     else{
+     else if(cumplen > 1){
+          Pregunta pregunta(atributo,personajes_restantes.size());
+          bintree<Pregunta> aux(pregunta);
           for(int i = 0; i < personajes_restantes.size(); i++){
                if(tablero[i][indice_atributo] == 0){
                     personajes_no.push_back(personajes[i]);
@@ -272,8 +284,9 @@ bintree<Pregunta> QuienEsQuien::crear_arbol( vector<string> atributos,
           bintree<Pregunta> arbol_si = crear_arbol(atributos,indice_atributo+1,personajes_si,restantes_si,tablero_si);
           bintree<Pregunta> arbol_no = crear_arbol(atributos,indice_atributo+1,personajes_no,restantes_no,tablero_no);
 
-          arbol.insert_right(nodo,arbol_no);
-          arbol.insert_left(nodo,arbol_si);
+          aux.insert_right(aux.root(),arbol_no);
+          aux.insert_left(aux.root(),arbol_si);
+          arbol = aux;
      }
 
      return arbol;
@@ -319,7 +332,7 @@ double QuienEsQuien::calcular_entropia(int indice_atributo, vector<vector<bool>>
 }
 
 /**
-* @brief Igual que el método crear_arbol, pero elige las preguntas maximizando la entropía.
+* @brief Igual que el m�todo crear_arbol, pero elige las preguntas maximizando la entrop�a.
 */
 bintree<Pregunta> QuienEsQuien::crear_arbol_mejorado( vector<string> atributos,
                                              int indice_atributo,
@@ -340,15 +353,25 @@ bintree<Pregunta> QuienEsQuien::crear_arbol_mejorado( vector<string> atributos,
      bintree<Pregunta>::node nodo = arbol.root();   
      bintree<Pregunta> arbol_si;
      bintree<Pregunta> arbol_no;
+     int cumplen = 0;
+     int indice;
 
-     if (personajes_restantes.size() == 1) { // Sólo queda un personaje
-          string atributo = personajes[0];
+     for(int i = 0; i < personajes_restantes.size(); i++){
+          if(personajes_restantes[i] == 1){
+               cumplen++;
+               indice = i;
+          }
+     }
+
+     if (cumplen == 1) { // Sólo queda un personaje
+          string atributo = personajes[indice];
           Pregunta pregunta(atributo,1);
-          if(tablero[0][indice_atributo] == 0)
+          if(tablero[indice][indice_atributo] == 0)
               arbol.insert_right(arbol.root(),pregunta); 
           else
                arbol.insert_left(arbol.root(),pregunta);
-     }else{
+     }
+     else if(cumplen >1){
           for(int i = 0; i < personajes_restantes.size(); i++){
                if(tablero[i][mejor_atributo] == 0){
                     personajes_no.push_back(personajes[i]);
@@ -396,8 +419,6 @@ void QuienEsQuien::iniciar_juego(){
     if (modo_graph){
         v.show();
     }
-    //COMPLETAR AQUI
-
     jugada_actual = arbol.root();
     Pregunta pregunta = *jugada_actual;
     while(!pregunta.es_personaje()){
@@ -405,14 +426,18 @@ void QuienEsQuien::iniciar_juego(){
           cout << "¿" << pregunta.obtener_pregunta() << "?";
           cin >> respuesta;
 
+          for(int i = 0; i < respuesta.size(); i++)
+               respuesta[i] = tolower(respuesta[i]);
+               
           if(respuesta == "si"){
-               jugada_actual = *(jugada_actual.left());
-               pregunta = *jugada_actual;
+               jugada_actual = jugada_actual.left();
           }
           else if(respuesta == "no"){
-               jugada_actual = *(jugada_actual.right());
-               pregunta = *jugada_actual;
+               jugada_actual = jugada_actual.right();
           }
+
+          if(!jugada_actual.null())
+               pregunta = *jugada_actual;
     }
     
     if (modo_graph){
@@ -425,34 +450,37 @@ void QuienEsQuien::iniciar_juego(){
      }while (c!='0');
      
     }
-    else{
+    else
           cout << "¡Lo tengo! Tu personaje es " << pregunta.obtener_pregunta();
-    }
     v.cerrar();
 }	
 
-set<string> QuienEsQuien::informacion_jugada(bintree<Pregunta>::node jugada_actual){
-     //TODO :)
-     set<string> personajes_levantados;
-     Pregunta pregunta = *jugada_actual;
-     string atributo = pregunta.obtener_pregunta();
+set<string> QuienEsQuien::informacion_jugada(bintree<Pregunta>::node jugada_actual) {
+    set<string> personajes_levantados;
+    Pregunta pregunta = *jugada_actual;
+    string atributo = pregunta.obtener_pregunta();
 
-     int indice = 1;
-     bool coinciden = false;
-     while(indice <= atributos.size() && !coinciden){
-          if(atributo == atributos[indice])
-               coinciden = true;
-          else
-               indice++;
-     }
+    int indice = 0;
+    bool coinciden = false;
+    while (indice < atributos.size() && !coinciden) {
+        if (atributo == atributos[indice]) {
+            coinciden = true;
+        } else {
+            indice++;
+        }
+    }
 
-     for(int i = 1; i <= personajes.size(); i++){
-          if(tablero[indice][i] == 1)
-               personajes_levantados.insert(personajes[i]);
-     }
+    if (coinciden) {
+        for (int i = 0; i < personajes.size(); i++) {
+            if (tablero[i][indice] == 1) {
+                personajes_levantados.insert(personajes[i]);
+            }
+        }
+    }
 
-     return personajes_levantados;
+    return personajes_levantados;
 }
+
 
 void escribir_esquema_arbol(ostream& ss, const bintree <Pregunta>& a,
                             bintree<Pregunta>::node n, string& pre){
@@ -480,21 +508,117 @@ void QuienEsQuien::eliminar_nodos_redundantes(){
      elimina_nodos_recursivos(nodo);
 }
 
-//Función auxiliar que permite eliminar los nodos con un solo hijo de manera recursiva.
-//Va recorriendo nodos hasta que se encuentre con un nodo nulo. (es decir, se ha llamado desde una hoja)
 void QuienEsQuien::elimina_nodos_recursivos(bintree<Pregunta>::node nodo){
-     if(!nodo.null()){
+     if(!nodo.null() && !nodo.parent().null()){
           bintree<Pregunta> aux;
           if(!nodo.right().null() && nodo.left().null()){
                arbol.prune_right(nodo,aux);
-               arbol.replace_subtree(nodo,aux,aux.root());
+               arbol.replace_subtree(nodo.parent(),aux,aux.root());
           }
           else if(nodo.right().null() && !nodo.left().null()){
                arbol.prune_left(nodo,aux);
-               arbol.replace_subtree(nodo,aux,aux.root());
+               arbol.replace_subtree(nodo.parent(),aux,aux.root());
           }
 
           elimina_nodos_recursivos(nodo.left());
           elimina_nodos_recursivos(nodo.right());
      }
 }
+
+float QuienEsQuien::profundidad_promedio_hojas() {
+    bintree<Pregunta>::node nodo = arbol.root();
+    int sumatotal = 0;
+    int num_hojas = personajes.size();
+
+    if (nodo.null()) {
+        return 0;
+    }
+
+    profundidad_recursiva(nodo, 0, sumatotal);
+
+    if (num_hojas == 0) {
+        return 0;
+    }
+
+    return static_cast<float>(sumatotal) / num_hojas;
+}
+
+void QuienEsQuien::profundidad_recursiva(bintree<Pregunta>::node nodo, int profundidad, int& suma) {
+    if (!nodo.null()) {
+        if (nodo.left().null() && nodo.right().null()) {   
+            suma += profundidad;
+        } else {
+            profundidad_recursiva(nodo.right(), profundidad + 1, suma);
+            profundidad_recursiva(nodo.left(), profundidad + 1, suma);
+        }
+    }
+}
+
+
+/**
+* @brief Genera numero enteros positivos aleatorios en el rango [min,max].
+**/
+int generaEntero(int min, int max){
+     int tam= max-min;
+     return ((rand( )%tam)+min) ;
+}
+
+void QuienEsQuien::tablero_aleatorio(int numero_de_personajes){
+     srand(0);
+     this->limpiar();
+     float log_2_numero_de_personajes = log(numero_de_personajes)/log(2);
+     int numero_de_atributos = ceil(log_2_numero_de_personajes);
+
+     cout <<  "Peticion para generar " <<  numero_de_personajes << " personajes ";
+     cout <<  "con " << numero_de_atributos <<  " atributos" << endl;
+     cout <<  "Paso 1: generar " <<  pow(2, numero_de_atributos) <<  " personajes" << endl;
+
+     //Fase 1: completar el tablero con todos los personajes posibles
+     //Complete el tablero y los nombres de personajes a la vez
+     for(int indice_personaje=0;indice_personaje< pow(2,numero_de_atributos);indice_personaje++){
+          vector<bool> atributos_personaje =
+                                    convertir_a_vector_bool(indice_personaje,numero_de_atributos);
+          string nombre_personaje = "Personaje_"+to_string(indice_personaje);
+
+          this->personajes.push_back(nombre_personaje);
+          this->tablero.push_back(atributos_personaje);
+     }
+
+     // Completo los nombres de los atributos.
+     for( int indice_atributo=0;indice_atributo<numero_de_atributos;indice_atributo++){
+          string nombre_atributo = "Atributo_"+to_string(indice_atributo);
+          this->atributos.push_back(nombre_atributo);
+     }
+     cout <<  "Paso 2: eliminar " << (pow(2,numero_de_atributos)-numero_de_personajes) <<  "personajes" << endl;
+
+     //Fase 2. Borrar personajes aleatoriamente hasta que quedan solo los que hemos pedido.
+     while(personajes.size()>numero_de_personajes){
+          int personaje_a_eliminar = generaEntero(0,personajes.size());
+          personajes.erase(personajes.begin()+personaje_a_eliminar);
+          tablero.erase(tablero.begin()+personaje_a_eliminar);
+     }
+}
+void QuienEsQuien::ocultar_personajes_graph(const set<string> &personajes_activos){
+    //ocultamos los personajes
+    int idx=0;
+    int ncols=tg->getNcols();
+    for (auto it=personajes.begin();it!=personajes.end();++it,idx++){
+        if ( personajes_activos.find(*it)==personajes_activos.end())
+            tg->putImagen(idx/ncols,idx%ncols,imagen_ocultar.c_str());
+    }
+}
+
+
+void QuienEsQuien::setImagenOcultar(const char * n){
+    imagen_ocultar=n;
+}
+
+void QuienEsQuien::setModoGraph(bool m){
+    modo_graph=m;
+}
+
+void QuienEsQuien::setArbolMejorado(bool m){
+    arbol_mejorado=m;
+}
+
+
